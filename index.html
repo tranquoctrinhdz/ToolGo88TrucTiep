@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>DeepLogic V12 - Go88</title>
+  <style>
+    body { font-family: system-ui; background: #111; color: #fff; text-align: center; padding: 30px; }
+    input, button { padding: 10px; font-size: 18px; margin: 5px; width: 90%; max-width: 400px; }
+    button { background: #0f0; border: none; color: #000; font-weight: bold; cursor: pointer; }
+    #result { font-size: 24px; margin-top: 15px; font-weight: bold; }
+    #history { list-style: none; padding: 0; max-width: 500px; margin: 20px auto 0; }
+    #history li { background: #222; padding: 6px; margin-bottom: 4px; border-left: 5px solid #0f0; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>DeepLogic V12 - Dự Đoán Tài/Xỉu Go88</h2>
+    <input id="md5" placeholder="Dán mã MD5 vào đây..." />
+    <input id="von" type="number" placeholder="Nhập số vốn..." />
+    <button onclick="duDoan()">Dự Đoán</button>
+    <div id="result"></div>
+    <ul id="history"></ul>
+    <p style="margin-top:20px;font-style:italic;color:#aaa;">Cre: Trần Quốc Trịnh – Trùm Kéo Thuê Go88</p>
+  </div>
+
+  <script>
+    let history = [];
+
+    function duDoan() {
+      const md5 = document.getElementById("md5").value.trim();
+      const von = parseFloat(document.getElementById("von").value.trim());
+      if (!md5) return alert("Vui lòng nhập mã MD5");
+
+      let hexSum = 0, asciiSum = 0, even = 0, odd = 0;
+      for (let i = 0; i < md5.length; i++) {
+        const c = md5[i];
+        asciiSum += c.charCodeAt(0);
+        const hex = parseInt(c, 16);
+        if (!isNaN(hex)) {
+          hexSum += hex;
+          (c in "02468ace") ? even++ : odd++;
+        }
+      }
+
+      let taiPercent = 0, xiuPercent = 0;
+      const isTai = (hexSum >= 250 || odd >= 18 || asciiSum >= 2300) && even <= 17;
+      const ketqua = isTai ? "Tài" : "Xỉu";
+      taiPercent = isTai ? 85 : 15;
+      xiuPercent = 100 - taiPercent;
+
+      // Gợi ý tiền cược
+      let goiy = "";
+      if (!isNaN(von) && von > 0) {
+        const goiyTien = Math.round(von * 0.4);
+        goiy = ` (Gợi ý cược: ${goiyTien.toLocaleString()}đ)`;
+      }
+
+      document.getElementById("result").innerHTML =
+        `Dự đoán: <span style='color:#0f0'>${ketqua}</span> – Tài: ${taiPercent}% / Xỉu: ${xiuPercent}%` + goiy;
+
+      // Lịch sử
+      history.unshift(`${ketqua} | MD5: ${md5.slice(0, 8)}... | ${new Date().toLocaleTimeString()}`);
+      if (history.length > 10) history.pop();
+      document.getElementById("history").innerHTML = history.map(h => `<li>${h}</li>`).join("");
+
+      // Xoá ô MD5
+      document.getElementById("md5").value = "";
+    }
+  </script>
+</body>
+</html>
